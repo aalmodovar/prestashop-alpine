@@ -1,0 +1,9 @@
+version: "3"
+services:
+        prestashop:
+                build:
+                        context: .
+        database:
+                image: mariadb
+        apache:
+                image: httpd:2.4-alpine
