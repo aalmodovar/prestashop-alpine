@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Establecer los permisos según variables de entorno
+# Parche para establecer un id de usuario si se pasa por variable de entorno
+
+PHP_FPM_EXISTING_USER=$(awk -v FS="user = " 'NF>1{print $2}' $PHP_FPM_CONF) 
+PHP_FPM_EXISTING_GROUP=$(grep -v '^;' $PHP_FPM_CONF | awk -v FS="group = " 'NF>1{print $2}') 
+
+if [ "$PHP_FPM_EXISTING_USER" != "" ] && [ "$PHP_FPM_EXISTING_USER" != "www-data" ]; then 
+   	PHPFPMUSERNAME=$PHP_FPM_EXISTING_USER 
+else 
+   PHPFPMUSERNAME=fpmusr$PHPFPMUSERID 
+fi 
+
+if [ "$PHP_FPM_EXISTING_GROUP" != "" ] && [ "$PHP_FPM_EXISTING_GROUP" != "www-data" ]; then 
+   	PHPFPMGRPNAME=$PHP_FPM_EXISTING_GROUP 
+else 
+   PHPFPMGRPNAME=fpmgrp$PHPFPMGRPID 
+fi 
+
+if [ "${PHPFPMGRPID}" ]; then 
+  if [ "$(grep ${PHPFPMGRPNAME} /etc/group)" == "" ]; then 
+     addgroup -g ${PHPFPMGRPID} ${PHPFPMGRPNAME} 
+     sed -i -e "s/group = www-data/group = ${PHPFPMGRPNAME}/g" $PHP_FPM_CONF 
+  fi 
+fi 
+
+if [ "${PHPFPMUSERID}" ]; then 
+  if [ "$(grep ${PHPFPMUSERNAME} /etc/passwd)" == "" ]; then 
+     adduser -s /bin/false -H -D -u ${PHPFPMUSERID} -G ${PHPFPMGRPNAME} ${PHPFPMUSERNAME} 
+     sed -i -e "s/user = www-data/user = ${PHPFPMUSERNAME}/g" $PHP_FPM_CONF 
+  fi 
+fi 
+

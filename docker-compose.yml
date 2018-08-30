@@ -1,9 +1,46 @@
 version: "3"
 services:
-        prestashop:
-                build:
-                        context: .
-        database:
-                image: mariadb
-        apache:
-                image: httpd:2.4-alpine
+
+  prestashop:
+    build: prestashop
+    volumes:
+      - prestashop_data:/var/www/html
+    environment:
+      PS_INSTALL_AUTO: 1
+      PS_DOMAIN: prestashop.local
+      DB_SERVER: database
+      DB_USER: prestashop
+      DB_PASSWD: prestashop
+      PHPFPMUSERID: 10000
+      PHPFPMGRPID: 1003
+        
+    depends_on:
+      - database
+
+  database:
+    image: mariadb
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+       MYSQL_ROOT_PASSWORD: prestashop
+       MYSQL_DATABASE: prestashop
+       MYSQL_USER: prestashop
+       MYSQL_PASSWORD: prestashop
+
+  nginx:
+    build: nginx
+    volumes:
+      - prestashop_data:/var/www/html:ro
+    ports:
+      - 80:80
+    depends_on:
+      - prestashop
+
+volumes:
+  db_data:
+  prestashop_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /disk/prestashop/httpdocs/
