@@ -1,7 +1,7 @@
 
-Prestashop last version with apache - php-fpm - mariadb.
+Prestashop last 1.6 version with nginx - php-fpm - mariadb.
 
-* BUILD *
+**BUILD**
 
 docker-compose run --rm -e PS_DOMAIN="prestashop.local" \
 -e DB_SERVER="database" \
@@ -25,7 +25,7 @@ prestashop docker-php-prestashop
 If differents user/group ids are needed:
 docker-compose run --rm --no-deps prestashop chown -R xxxx:xxxx /var/www/html
 
-* RUN *
+**RUN**
 docker-compose up
 
 Set prestashop.local in hosts file and test it.
